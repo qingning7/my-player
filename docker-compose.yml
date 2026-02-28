@@ -1,0 +1,16 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: my_player_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: player
+      POSTGRES_PASSWORD: player_dev
+      POSTGRES_DB: player_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  pgdata:

@@ -13,7 +13,7 @@ const reelHoles = [
 ];
 
 export const PlayerShell = () => {
-  const currentSong = usePlayerStore((state) => state.currentSong);
+  const currentSong = usePlayerStore((state) => state.currentSong);// 从 Store 中拿到 currentSong 的值，state 是 Store 中的状态对象
   const isActive = Boolean(currentSong);
 
   return (
