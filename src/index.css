@@ -2,13 +2,13 @@
 @import "tailwindcss";
 
 :root {
-  --ink: #2d3a2f;
-  --muted: #6a7b66;
-  --panel: rgba(233, 240, 220, 0.78);
-  --panel-strong: rgba(220, 230, 204, 0.92);
-  --accent: #7ea36c;
-  --accent-strong: #5d7d52;
-  --shadow: 0 24px 60px rgba(45, 58, 47, 0.18);
+  --ink: #3b2a2f;
+  --muted: #806a74;
+  --panel: rgba(255, 236, 240, 0.78);
+  --panel-strong: rgba(255, 226, 233, 0.92);
+  --accent: #f2a0b4;
+  --accent-strong: #d57c95;
+  --shadow: 0 24px 60px rgba(59, 42, 47, 0.18);
 }
 
 *,
@@ -21,7 +21,7 @@ body {
   margin: 0;
   font-family: 'Manrope', 'Segoe UI', sans-serif;
   color: var(--ink);
-  background: #dce7c9;
+  background: #f3dfe5;
 }
 
 #root {
@@ -33,7 +33,7 @@ body {
   background:
     radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.55), transparent 55%),
     radial-gradient(circle at 80% 15%, rgba(255, 255, 255, 0.4), transparent 45%),
-    linear-gradient(135deg, #dfeacc 0%, #cddcb4 45%, #c2d3ab 100%);
+    linear-gradient(135deg, #f8e8ed 0%, #f1d6df 45%, #e9c8d3 100%);
 }
 
 .panel {
@@ -54,6 +54,32 @@ body {
 
 .float-in {
   animation: float-in 0.9s ease both;
+}
+
+.lyrics-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+}
+
+.lyrics-scroll::-webkit-scrollbar {
+  width: 8px;
+}
+
+.lyrics-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.lyrics-scroll::-webkit-scrollbar-thumb {
+  background-color: transparent;
+  border-radius: 999px;
+}
+
+.lyrics-scroll:hover {
+  scrollbar-color: rgba(214, 124, 149, 0.6) transparent;
+}
+
+.lyrics-scroll:hover::-webkit-scrollbar-thumb {
+  background-color: rgba(214, 124, 149, 0.6);
 }
 
 .delay-1 {

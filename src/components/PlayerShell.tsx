@@ -8,12 +8,12 @@ import {
 } from '../lib/netease';
 
 const themeSwatches = [
-  { name: 'blue', className: 'bg-sky-300' },
-  { name: 'green', className: 'bg-emerald-300' },
-  { name: 'violet', className: 'bg-violet-300' },
-  { name: 'red', className: 'bg-rose-300' },
-  { name: 'pink', className: 'bg-pink-300' },
-  { name: 'orange', className: 'bg-orange-300' },
+  { name: 'rose', className: 'bg-rose-300' },
+  { name: 'sage', className: 'bg-[#c7d4c0]' },
+  { name: 'peach', className: 'bg-orange-200' },
+  { name: 'cream', className: 'bg-amber-100' },
+  { name: 'sky', className: 'bg-sky-200' },
+  { name: 'lavender', className: 'bg-violet-200' },
 ];
 
 const fallbackLyrics = [
@@ -289,7 +289,7 @@ export const PlayerShell = () => {
               style={{ animationDuration: '18s' }}
             >
               <div className="absolute inset-4 rounded-full border border-white/60" />
-              <div className="absolute inset-9 overflow-hidden rounded-full border border-emerald-200/70 bg-white/70">
+              <div className="absolute inset-9 overflow-hidden rounded-full border border-rose-200/70 bg-white/70">
                 {currentTrack?.coverUrl ? (
                   <img
                     src={currentTrack.coverUrl}
@@ -297,13 +297,13 @@ export const PlayerShell = () => {
                     className="h-full w-full object-cover"
                   />
                 ) : (
-                  <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-emerald-100 to-emerald-300 text-xs font-semibold text-emerald-800">
+                  <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-rose-100 to-rose-300 text-xs font-semibold text-rose-800">
                     {currentTrack ? currentTrack.title.slice(0, 6) : 'No Cover'}
                   </div>
                 )}
                 <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(255,255,255,0.55),transparent_60%)]" />
               </div>
-              <div className="absolute left-1/2 top-1/2 h-10 w-10 -translate-x-1/2 -translate-y-1/2 rounded-full border border-emerald-200 bg-white/85" />
+              <div className="absolute left-1/2 top-1/2 h-10 w-10 -translate-x-1/2 -translate-y-1/2 rounded-full border border-rose-200 bg-white/85" />
             </div>
           </div>
           <div className="mt-6 space-y-1">
@@ -318,14 +318,22 @@ export const PlayerShell = () => {
             <p>Album: {currentTrack?.album ?? 'Unknown'}</p>
             <p>Source: Netease Cloud (proxy)</p>
           </div>
+          <div className="mt-5 w-full">
+            <p className="text-[10px] uppercase tracking-[0.2em] text-[color:var(--muted)]">theme</p>
+            <div className="mt-2 flex flex-wrap justify-center gap-2">
+              {themeSwatches.map((swatch) => (
+                <span key={swatch.name} className={`h-6 w-6 rounded-full shadow ${swatch.className}`} />
+              ))}
+            </div>
+          </div>
         </div>
 
-        <div className="panel panel-strong float-in delay-2 flex flex-col rounded-3xl p-6">
+        <div className="panel panel-strong float-in delay-2 flex min-h-0 flex-col rounded-3xl p-6">
           <div className="flex items-center gap-3 text-xs text-[color:var(--muted)]">
             <button
               type="button"
               onClick={togglePlay}
-              className="flex h-8 w-8 items-center justify-center rounded-full border border-emerald-200 bg-white/70 text-emerald-700 shadow-sm transition hover:bg-white disabled:cursor-not-allowed disabled:opacity-50"
+              className="flex h-8 w-8 items-center justify-center rounded-full border border-rose-200 bg-white/70 text-rose-700 shadow-sm transition hover:bg-white disabled:cursor-not-allowed disabled:opacity-50"
               aria-label={isPlaying ? 'Pause' : 'Play'}
               disabled={!audioUrl}
             >
@@ -347,16 +355,16 @@ export const PlayerShell = () => {
               onPointerMove={handlePointerMove}
               onPointerUp={handlePointerUp}
               onPointerLeave={handlePointerUp}
-              className="relative h-1.5 flex-1 cursor-pointer rounded-full bg-emerald-200/60"
+              className="relative h-1.5 flex-1 cursor-pointer rounded-full bg-rose-200/60"
               aria-label="Playback progress"
             >
               <div
-                className="absolute left-0 top-0 h-1.5 rounded-full bg-emerald-500/70"
+                className="absolute left-0 top-0 h-1.5 rounded-full bg-rose-500/70"
                 style={{ width: `${progress}%` }}
               />
             </div>
             <span>{formatTime(duration)}</span>
-            <div className="flex h-7 w-7 items-center justify-center rounded-full bg-white/70 text-emerald-700">
+            <div className="flex h-7 w-7 items-center justify-center rounded-full bg-white/70 text-rose-700">
               <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.6">
                 <path d="M4 10v4h4l5 4V6l-5 4H4z" />
                 <path d="M16 9a4 4 0 010 6" />
@@ -370,7 +378,7 @@ export const PlayerShell = () => {
 
           <div
             ref={lyricContainerRef}
-            className="mt-5 flex-1 overflow-y-auto rounded-3xl bg-white/55 px-6 py-5 text-center text-sm leading-6 text-[color:var(--muted)] shadow-inner"
+            className="lyrics-scroll mt-5 flex-1 overflow-y-auto rounded-3xl bg-white/55 px-6 py-5 text-center text-sm leading-6 text-[color:var(--muted)] shadow-inner max-h-[45vh] lg:max-h-[50vh]"
           >
             {lyricLoading ? (
               <p className="text-sm text-[color:var(--muted)]">Loading lyrics...</p>
@@ -385,7 +393,7 @@ export const PlayerShell = () => {
                         }}
                         className={`transition-all ${
                           index === activeLine
-                            ? 'title-font text-base text-emerald-900'
+                            ? 'title-font text-base text-rose-900'
                             : 'text-[color:var(--muted)] opacity-70'
                         }`}
                       >
@@ -404,7 +412,7 @@ export const PlayerShell = () => {
           <div className="mt-6 flex items-center justify-center gap-3">
             <button
               type="button"
-              className="flex h-10 w-10 items-center justify-center rounded-full border border-emerald-200 bg-white/70 text-emerald-700 transition hover:bg-white"
+              className="flex h-10 w-10 items-center justify-center rounded-full border border-rose-200 bg-white/70 text-rose-700 transition hover:bg-white"
               aria-label="Shuffle"
             >
               <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.6">
@@ -419,7 +427,7 @@ export const PlayerShell = () => {
             <button
               type="button"
               onClick={playPrev}
-              className="flex h-10 w-10 items-center justify-center rounded-full border border-emerald-200 bg-white/70 text-emerald-700 transition hover:bg-white"
+              className="flex h-10 w-10 items-center justify-center rounded-full border border-rose-200 bg-white/70 text-rose-700 transition hover:bg-white"
               aria-label="Previous track"
             >
               <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8">
@@ -448,7 +456,7 @@ export const PlayerShell = () => {
             <button
               type="button"
               onClick={playNext}
-              className="flex h-10 w-10 items-center justify-center rounded-full border border-emerald-200 bg-white/70 text-emerald-700 transition hover:bg-white"
+              className="flex h-10 w-10 items-center justify-center rounded-full border border-rose-200 bg-white/70 text-rose-700 transition hover:bg-white"
               aria-label="Next track"
             >
               <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8">
@@ -462,7 +470,7 @@ export const PlayerShell = () => {
               className={`flex h-10 w-10 items-center justify-center rounded-full border transition ${
                 currentTrack && likedIds.has(currentTrack.id)
                   ? 'border-rose-200 bg-rose-100 text-rose-600'
-                  : 'border-emerald-200 bg-white/70 text-emerald-700 hover:bg-white'
+                  : 'border-rose-200 bg-white/70 text-rose-700 hover:bg-white'
               }`}
               aria-label="Like"
             >
@@ -493,7 +501,7 @@ export const PlayerShell = () => {
             />
             <button
               type="submit"
-              className="rounded-full border border-emerald-200 bg-white/80 px-3 py-1 text-xs text-emerald-700 shadow-sm hover:bg-white"
+              className="rounded-full border border-rose-200 bg-white/80 px-3 py-1 text-xs text-rose-700 shadow-sm hover:bg-white"
               disabled={loading}
             >
               {loading ? '...' : 'Search'}
@@ -518,19 +526,19 @@ export const PlayerShell = () => {
                   onClick={() => setCurrentTrack(track)}
                   className={`flex w-full items-center justify-between gap-3 rounded-2xl border px-3 py-2 text-left transition ${
                     isActive
-                      ? 'border-emerald-300 bg-white/80'
+                      ? 'border-rose-300 bg-white/80'
                       : 'border-transparent bg-white/40 hover:bg-white/70'
                   }`}
                 >
-                  <div className="flex items-center gap-3">
-                    <div className="flex h-11 w-11 items-center justify-center overflow-hidden rounded-xl bg-gradient-to-br from-emerald-100 to-emerald-300 text-xs font-semibold text-emerald-900">
+                  <div className="flex min-w-0 items-center gap-3">
+                    <div className="flex h-11 w-11 flex-none items-center justify-center overflow-hidden rounded-xl bg-rose-200 text-xs font-semibold tabular-nums text-rose-900">
                       {track.coverUrl ? (
                         <img src={track.coverUrl} alt="" className="h-full w-full object-cover" />
                       ) : (
                         index + 1
                       )}
                     </div>
-                    <div>
+                    <div className="min-w-0">
                       <p className="text-sm font-semibold text-[color:var(--ink)]">{track.title}</p>
                       <p className="text-xs text-[color:var(--muted)]">{track.artist}</p>
                     </div>
@@ -541,10 +549,10 @@ export const PlayerShell = () => {
                       event.stopPropagation();
                       toggleLike(track.id);
                     }}
-                    className={`flex h-8 w-8 items-center justify-center rounded-full border transition ${
+                    className={`flex h-8 w-8 flex-none items-center justify-center rounded-full border transition ${
                       isLiked
                         ? 'border-rose-200 bg-rose-100 text-rose-600'
-                        : 'border-emerald-200 bg-white/70 text-emerald-700 hover:bg-white'
+                        : 'border-rose-200 bg-white/70 text-rose-700 hover:bg-white'
                     }`}
                     aria-label="Like track"
                   >
@@ -557,22 +565,6 @@ export const PlayerShell = () => {
             })}
           </div>
         </div>
-      </div>
-
-      <div className="panel float-in delay-2 flex flex-col gap-4 rounded-3xl px-6 py-4 lg:flex-row lg:items-center lg:justify-between">
-        <div className="space-y-1 text-sm text-[color:var(--muted)]">
-          <p className="title-font text-base text-[color:var(--accent-strong)]">Theme Palette</p>
-          <p>Pick a tone for the listening room</p>
-        </div>
-        <div className="flex flex-wrap items-center gap-3">
-          {themeSwatches.map((swatch) => (
-            <div key={swatch.name} className="flex flex-col items-center gap-1 text-xs text-[color:var(--muted)]">
-              <span className={`h-7 w-7 rounded-full shadow ${swatch.className}`} />
-              {swatch.name}
-            </div>
-          ))}
-        </div>
-        <div className="text-xs text-[color:var(--muted)]">Design notes · 2025.05.17</div>
       </div>
 
       <audio ref={audioRef} src={audioUrl ?? ''} preload="metadata" />
