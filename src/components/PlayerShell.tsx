@@ -489,7 +489,7 @@ export const PlayerShell = () => {
   return (
     <section className="mx-auto flex min-h-screen w-full max-w-[1400px] flex-col gap-8 px-6 py-12">
       <div className="grid gap-6 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.7fr)_minmax(0,0.95fr)] lg:items-stretch">
-        <div className="panel float-in delay-1 flex flex-col items-center rounded-3xl p-6 text-center lg:min-h-[82vh] lg:justify-between">
+        <div className="panel float-in delay-1 flex flex-col items-center rounded-[var(--radius-lg)] p-6 text-center lg:min-h-[82vh] lg:justify-between">
           <div className="relative w-full max-w-[260px]">
             <div
               className={`relative aspect-square w-full rounded-full bg-[radial-gradient(circle_at_35%_35%,rgba(255,255,255,0.9),rgba(19,34,23,0.95))] shadow-2xl ${
@@ -523,7 +523,7 @@ export const PlayerShell = () => {
               {currentTrack?.artist ?? 'Search and select a track'}
             </p>
           </div>
-          <div className="mt-6 rounded-2xl bg-white/50 px-4 py-3 text-xs text-[color:var(--muted)]">
+          <div className="mt-6 rounded-[var(--radius-md)] bg-white/50 px-4 py-3 text-xs text-[color:var(--muted)]">
             <p>Album: {currentTrack?.album ?? 'Unknown'}</p>
             <p>Source: Netease Cloud (proxy)</p>
           </div>
@@ -551,7 +551,7 @@ export const PlayerShell = () => {
           </div>
         </div>
 
-        <div className="panel panel-strong float-in delay-2 flex min-h-0 flex-col rounded-3xl p-6 lg:min-h-[82vh]">
+        <div className="panel panel-strong float-in delay-2 flex min-h-0 flex-col rounded-[var(--radius-lg)] p-6 lg:min-h-[82vh]">
           <div className="flex items-center justify-end gap-2 text-xs text-[color:var(--muted)]">
             <button
               type="button"
@@ -597,12 +597,12 @@ export const PlayerShell = () => {
           </div>
 
           {audioError && (
-            <p className="mt-3 rounded-xl bg-[color:var(--accent-100)] px-3 py-2 text-xs text-[color:var(--accent-600)]">{audioError}</p>
+            <p className="mt-3 rounded-[var(--radius-sm)] bg-[color:var(--accent-100)] px-3 py-2 text-xs text-[color:var(--accent-600)]">{audioError}</p>
           )}
 
           <div
             ref={lyricContainerRef}
-            className="lyrics-scroll mt-5 flex-1 overflow-y-auto rounded-3xl bg-white/55 px-6 py-5 text-center text-sm leading-6 text-[color:var(--muted)] shadow-inner max-h-[45vh] lg:max-h-[50vh]"
+            className="lyrics-scroll mt-5 flex-1 overflow-y-auto rounded-[var(--radius-lg)] bg-white/55 px-6 py-5 text-center text-sm leading-6 text-[color:var(--muted)] shadow-inner max-h-[45vh] lg:max-h-[50vh]"
           >
             {lyricLoading ? (
               <p className="text-sm text-[color:var(--muted)]">Loading lyrics...</p>
@@ -724,13 +724,13 @@ export const PlayerShell = () => {
           </div>
         </div>
 
-        <div className="panel float-in delay-3 flex h-full max-h-[82vh] flex-col gap-4 rounded-3xl p-5 lg:min-h-[82vh]">
+        <div className="panel float-in delay-3 flex h-full max-h-[82vh] flex-col gap-4 rounded-[var(--radius-lg)] p-5 lg:min-h-[82vh]">
           <form
             onSubmit={(event) => {
               event.preventDefault();
               performSearch(query);
             }}
-            className="flex items-center gap-3 rounded-2xl bg-white/70 px-4 py-2 text-sm text-[color:var(--muted)] shadow-inner"
+            className="flex items-center gap-3 rounded-[var(--radius-md)] bg-white/70 px-4 py-2 text-sm text-[color:var(--muted)] shadow-inner"
           >
             <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.6">
               <circle cx="11" cy="11" r="7" />
@@ -751,9 +751,9 @@ export const PlayerShell = () => {
             </button>
           </form>
 
-          {error && <p className="rounded-xl bg-[color:var(--accent-100)] px-3 py-2 text-xs text-[color:var(--accent-600)]">{error}</p>}
+          {error && <p className="rounded-[var(--radius-sm)] bg-[color:var(--accent-100)] px-3 py-2 text-xs text-[color:var(--accent-600)]">{error}</p>}
           {!error && !loading && results.length === 0 && (
-            <p className="rounded-xl bg-white/70 px-3 py-2 text-xs text-[color:var(--muted)]">
+            <p className="rounded-[var(--radius-sm)] bg-white/70 px-3 py-2 text-xs text-[color:var(--muted)]">
               No results. Try another keyword.
             </p>
           )}
@@ -767,14 +767,14 @@ export const PlayerShell = () => {
                   key={track.id}
                   type="button"
                   onClick={() => setCurrentTrack(track)}
-                  className={`flex w-full items-center justify-between gap-3 rounded-2xl border px-3 py-2 text-left transition ${
+                  className={`flex w-full items-center justify-between gap-3 rounded-[var(--radius-md)] border px-3 py-2 text-left transition ${
                     isActive
                       ? 'border-[color:var(--accent-300)] bg-white/80'
                       : 'border-transparent bg-white/40 hover:bg-white/70'
                   }`}
                 >
                   <div className="flex min-w-0 items-center gap-3">
-                    <div className="flex h-11 w-11 flex-none items-center justify-center overflow-hidden rounded-xl bg-[color:var(--accent-200)] text-xs font-semibold tabular-nums text-[color:var(--accent-800)]">
+                    <div className="flex h-11 w-11 flex-none items-center justify-center overflow-hidden rounded-[var(--radius-sm)] bg-[color:var(--accent-200)] text-xs font-semibold tabular-nums text-[color:var(--accent-800)]">
                       {track.coverUrl ? (
                         <img src={track.coverUrl} alt="" className="h-full w-full object-cover" />
                       ) : (
