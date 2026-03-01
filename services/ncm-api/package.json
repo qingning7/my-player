@@ -1,0 +1,12 @@
+{
+  "name": "ncm-api-service",
+  "private": true,
+  "version": "0.1.0",
+  "scripts": {
+    "start": "node start.js"
+  },
+  "dependencies": {
+    "@neteasecloudmusicapienhanced/api": "4.30.2",
+    "dotenv": "^17.3.1"
+  }
+}
