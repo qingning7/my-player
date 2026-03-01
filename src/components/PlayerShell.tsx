@@ -7,14 +7,173 @@ import {
   type NeteaseTrack,
 } from '../lib/netease';
 
-const themeSwatches = [
-  { name: 'rose', className: 'bg-rose-300' },
-  { name: 'sage', className: 'bg-[#c7d4c0]' },
-  { name: 'peach', className: 'bg-orange-200' },
-  { name: 'cream', className: 'bg-amber-100' },
-  { name: 'sky', className: 'bg-sky-200' },
-  { name: 'lavender', className: 'bg-violet-200' },
+type Theme = {
+  id: string;
+  label: string;
+  swatch: string;
+  vars: Record<string, string>;
+};
+
+const themes: Theme[] = [
+  {
+    id: 'rose',
+    label: 'rose',
+    swatch: '#f6b6c6',
+    vars: {
+      '--ink': '#3b2a2f',
+      '--muted': '#806a74',
+      '--panel': 'rgba(255, 236, 240, 0.78)',
+      '--panel-strong': 'rgba(255, 226, 233, 0.92)',
+      '--shadow': '0 24px 60px rgba(59, 42, 47, 0.18)',
+      '--bg-1': '#f8e8ed',
+      '--bg-2': '#f1d6df',
+      '--bg-3': '#e9c8d3',
+      '--accent-100': '#ffeaf0',
+      '--accent-200': '#f6c6d3',
+      '--accent-200-70': 'rgba(246, 198, 211, 0.7)',
+      '--accent-200-60': 'rgba(246, 198, 211, 0.6)',
+      '--accent-300': '#f6b6c6',
+      '--accent-400': '#f2a0b4',
+      '--accent-500': '#e9819d',
+      '--accent-500-70': 'rgba(233, 129, 157, 0.7)',
+      '--accent-600': '#d56d89',
+      '--accent-700': '#b84f6e',
+      '--accent-800': '#8f405a',
+    },
+  },
+  {
+    id: 'sage',
+    label: 'sage',
+    swatch: '#c7d4c0',
+    vars: {
+      '--ink': '#2f3b34',
+      '--muted': '#6e7a73',
+      '--panel': 'rgba(238, 243, 234, 0.78)',
+      '--panel-strong': 'rgba(226, 235, 220, 0.92)',
+      '--shadow': '0 24px 60px rgba(47, 59, 52, 0.18)',
+      '--bg-1': '#eef3ea',
+      '--bg-2': '#dfe8d8',
+      '--bg-3': '#d0ddc6',
+      '--accent-100': '#f1f5ed',
+      '--accent-200': '#d5dfcf',
+      '--accent-200-70': 'rgba(213, 223, 207, 0.7)',
+      '--accent-200-60': 'rgba(213, 223, 207, 0.6)',
+      '--accent-300': '#c1cfba',
+      '--accent-400': '#aabca3',
+      '--accent-500': '#96ad8e',
+      '--accent-500-70': 'rgba(150, 173, 142, 0.7)',
+      '--accent-600': '#7f9779',
+      '--accent-700': '#647a5f',
+      '--accent-800': '#465a43',
+    },
+  },
+  {
+    id: 'peach',
+    label: 'peach',
+    swatch: '#f8c2a1',
+    vars: {
+      '--ink': '#3b2f2a',
+      '--muted': '#857166',
+      '--panel': 'rgba(255, 241, 230, 0.78)',
+      '--panel-strong': 'rgba(255, 232, 216, 0.92)',
+      '--shadow': '0 24px 60px rgba(59, 47, 42, 0.18)',
+      '--bg-1': '#fdeee6',
+      '--bg-2': '#f8dfd1',
+      '--bg-3': '#f0cfbf',
+      '--accent-100': '#fff1e8',
+      '--accent-200': '#fbd6c0',
+      '--accent-200-70': 'rgba(251, 214, 192, 0.7)',
+      '--accent-200-60': 'rgba(251, 214, 192, 0.6)',
+      '--accent-300': '#f8c2a1',
+      '--accent-400': '#f4b08a',
+      '--accent-500': '#ea9a6f',
+      '--accent-500-70': 'rgba(234, 154, 111, 0.7)',
+      '--accent-600': '#d88259',
+      '--accent-700': '#bf6b44',
+      '--accent-800': '#8f4f33',
+    },
+  },
+  {
+    id: 'cream',
+    label: 'cream',
+    swatch: '#f6e1b2',
+    vars: {
+      '--ink': '#3b3326',
+      '--muted': '#85755f',
+      '--panel': 'rgba(255, 245, 232, 0.78)',
+      '--panel-strong': 'rgba(255, 236, 214, 0.92)',
+      '--shadow': '0 24px 60px rgba(59, 51, 38, 0.18)',
+      '--bg-1': '#fff5e8',
+      '--bg-2': '#f5ead4',
+      '--bg-3': '#eddcbe',
+      '--accent-100': '#fff6e6',
+      '--accent-200': '#f9ebc6',
+      '--accent-200-70': 'rgba(249, 235, 198, 0.7)',
+      '--accent-200-60': 'rgba(249, 235, 198, 0.6)',
+      '--accent-300': '#f6e1b2',
+      '--accent-400': '#f3d795',
+      '--accent-500': '#e6c878',
+      '--accent-500-70': 'rgba(230, 200, 120, 0.7)',
+      '--accent-600': '#d1b05c',
+      '--accent-700': '#b0903f',
+      '--accent-800': '#7d6730',
+    },
+  },
+  {
+    id: 'sky',
+    label: 'sky',
+    swatch: '#b8dcf7',
+    vars: {
+      '--ink': '#2a343b',
+      '--muted': '#64727c',
+      '--panel': 'rgba(237, 246, 255, 0.78)',
+      '--panel-strong': 'rgba(223, 238, 255, 0.92)',
+      '--shadow': '0 24px 60px rgba(42, 52, 59, 0.18)',
+      '--bg-1': '#edf6ff',
+      '--bg-2': '#dbe9fa',
+      '--bg-3': '#ccdbf0',
+      '--accent-100': '#edf7ff',
+      '--accent-200': '#cfe7fb',
+      '--accent-200-70': 'rgba(207, 231, 251, 0.7)',
+      '--accent-200-60': 'rgba(207, 231, 251, 0.6)',
+      '--accent-300': '#b8dcf7',
+      '--accent-400': '#9fcff2',
+      '--accent-500': '#8bbfe6',
+      '--accent-500-70': 'rgba(139, 191, 230, 0.7)',
+      '--accent-600': '#6ea8d1',
+      '--accent-700': '#4f86ac',
+      '--accent-800': '#3a5f7a',
+    },
+  },
+  {
+    id: 'lavender',
+    label: 'lavender',
+    swatch: '#d2c2f6',
+    vars: {
+      '--ink': '#332a3b',
+      '--muted': '#766c88',
+      '--panel': 'rgba(245, 240, 255, 0.78)',
+      '--panel-strong': 'rgba(236, 229, 250, 0.92)',
+      '--shadow': '0 24px 60px rgba(51, 42, 59, 0.18)',
+      '--bg-1': '#f5f0ff',
+      '--bg-2': '#e6dcf5',
+      '--bg-3': '#d7cbea',
+      '--accent-100': '#f5f0ff',
+      '--accent-200': '#e2d8fb',
+      '--accent-200-70': 'rgba(226, 216, 251, 0.7)',
+      '--accent-200-60': 'rgba(226, 216, 251, 0.6)',
+      '--accent-300': '#d2c2f6',
+      '--accent-400': '#c1afea',
+      '--accent-500': '#b09adc',
+      '--accent-500-70': 'rgba(176, 154, 220, 0.7)',
+      '--accent-600': '#9b82d8',
+      '--accent-700': '#7a62b5',
+      '--accent-800': '#5b4689',
+    },
+  },
 ];
+
+const themeMap = Object.fromEntries(themes.map((theme) => [theme.id, theme]));
 
 const fallbackLyrics = [
   'Search for a song to begin',
@@ -28,6 +187,13 @@ export const PlayerShell = () => {
   const lyricContainerRef = useRef<HTMLDivElement | null>(null);
   const lineRefs = useRef<(HTMLParagraphElement | null)[]>([]);
   const wasPlayingRef = useRef(false);
+  const lastVolumeRef = useRef(0.8);
+
+  const [themeId, setThemeId] = useState(() => {
+    if (typeof window === 'undefined') return 'rose';
+    const saved = window.localStorage.getItem('player-theme');
+    return saved && themeMap[saved] ? saved : 'rose';
+  });
 
   const [query, setQuery] = useState('周杰伦');
   const [results, setResults] = useState<NeteaseTrack[]>([]);
@@ -45,6 +211,17 @@ export const PlayerShell = () => {
   const [currentTime, setCurrentTime] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
+  const [volume, setVolume] = useState(0.8);
+  const [isMuted, setIsMuted] = useState(false);
+
+  useEffect(() => {
+    const theme = themeMap[themeId] ?? themes[0];
+    const root = document.documentElement;
+    Object.entries(theme.vars).forEach(([key, value]) => {
+      root.style.setProperty(key, value);
+    });
+    window.localStorage.setItem('player-theme', theme.id);
+  }, [themeId]);
 
   const performSearch = async (keyword: string) => {
     const trimmed = keyword.trim();
@@ -104,6 +281,13 @@ export const PlayerShell = () => {
   useEffect(() => {
     wasPlayingRef.current = isPlaying;
   }, [isPlaying]);
+
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    audio.volume = volume;
+    audio.muted = isMuted;
+  }, [volume, isMuted]);
 
   useEffect(() => {
     if (!currentTrack) {
@@ -220,6 +404,31 @@ export const PlayerShell = () => {
     }
   };
 
+  const toggleMute = () => {
+    setIsMuted((prev) => {
+      if (!prev) {
+        lastVolumeRef.current = volume || lastVolumeRef.current;
+        return true;
+      }
+      if (volume === 0) {
+        setVolume(lastVolumeRef.current || 0.8);
+      }
+      return false;
+    });
+  };
+
+  const handleVolumeChange = (nextValue: number) => {
+    setVolume(nextValue);
+    if (nextValue > 0) {
+      lastVolumeRef.current = nextValue;
+      if (isMuted) {
+        setIsMuted(false);
+      }
+    } else {
+      setIsMuted(true);
+    }
+  };
+
   const progress = duration > 0 ? (currentTime / duration) * 100 : 0;
 
   const activeLine = useMemo(() => {
@@ -278,9 +487,9 @@ export const PlayerShell = () => {
   };
 
   return (
-    <section className="mx-auto flex min-h-screen w-full max-w-6xl flex-col gap-8 px-6 py-10">
-      <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)_minmax(0,0.95fr)]">
-        <div className="panel float-in delay-1 flex flex-col items-center rounded-3xl p-6 text-center">
+    <section className="mx-auto flex min-h-screen w-full max-w-[1400px] flex-col gap-8 px-6 py-12">
+      <div className="grid gap-6 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.7fr)_minmax(0,0.95fr)] lg:items-stretch">
+        <div className="panel float-in delay-1 flex flex-col items-center rounded-3xl p-6 text-center lg:min-h-[82vh] lg:justify-between">
           <div className="relative w-full max-w-[260px]">
             <div
               className={`relative aspect-square w-full rounded-full bg-[radial-gradient(circle_at_35%_35%,rgba(255,255,255,0.9),rgba(19,34,23,0.95))] shadow-2xl ${
@@ -289,7 +498,7 @@ export const PlayerShell = () => {
               style={{ animationDuration: '18s' }}
             >
               <div className="absolute inset-4 rounded-full border border-white/60" />
-              <div className="absolute inset-9 overflow-hidden rounded-full border border-rose-200/70 bg-white/70">
+              <div className="absolute inset-9 overflow-hidden rounded-full border border-[color:var(--accent-200-70)] bg-white/70">
                 {currentTrack?.coverUrl ? (
                   <img
                     src={currentTrack.coverUrl}
@@ -297,13 +506,13 @@ export const PlayerShell = () => {
                     className="h-full w-full object-cover"
                   />
                 ) : (
-                  <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-rose-100 to-rose-300 text-xs font-semibold text-rose-800">
+                  <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-[color:var(--accent-100)] to-[color:var(--accent-300)] text-xs font-semibold text-[color:var(--accent-800)]">
                     {currentTrack ? currentTrack.title.slice(0, 6) : 'No Cover'}
                   </div>
                 )}
                 <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(255,255,255,0.55),transparent_60%)]" />
               </div>
-              <div className="absolute left-1/2 top-1/2 h-10 w-10 -translate-x-1/2 -translate-y-1/2 rounded-full border border-rose-200 bg-white/85" />
+              <div className="absolute left-1/2 top-1/2 h-10 w-10 -translate-x-1/2 -translate-y-1/2 rounded-full border border-[color:var(--accent-200)] bg-white/85" />
             </div>
           </div>
           <div className="mt-6 space-y-1">
@@ -318,62 +527,77 @@ export const PlayerShell = () => {
             <p>Album: {currentTrack?.album ?? 'Unknown'}</p>
             <p>Source: Netease Cloud (proxy)</p>
           </div>
-          <div className="mt-5 w-full">
+          <div className="mt-5 w-full pb-2">
             <p className="text-[10px] uppercase tracking-[0.2em] text-[color:var(--muted)]">theme</p>
             <div className="mt-2 flex flex-wrap justify-center gap-2">
-              {themeSwatches.map((swatch) => (
-                <span key={swatch.name} className={`h-6 w-6 rounded-full shadow ${swatch.className}`} />
-              ))}
+              {themes.map((theme) => {
+                const isActive = theme.id === themeId;
+                return (
+                  <button
+                    key={theme.id}
+                    type="button"
+                    onClick={() => setThemeId(theme.id)}
+                    className={`h-6 w-6 rounded-full shadow transition ${
+                      isActive
+                        ? 'ring-2 ring-[color:var(--accent-300)] ring-offset-2 ring-offset-white/70'
+                        : 'hover:scale-105'
+                    }`}
+                    style={{ backgroundColor: theme.swatch }}
+                    aria-label={`Theme ${theme.label}`}
+                  />
+                );
+              })}
             </div>
           </div>
         </div>
 
-        <div className="panel panel-strong float-in delay-2 flex min-h-0 flex-col rounded-3xl p-6">
-          <div className="flex items-center gap-3 text-xs text-[color:var(--muted)]">
+        <div className="panel panel-strong float-in delay-2 flex min-h-0 flex-col rounded-3xl p-6 lg:min-h-[82vh]">
+          <div className="flex items-center justify-end gap-2 text-xs text-[color:var(--muted)]">
             <button
               type="button"
-              onClick={togglePlay}
-              className="flex h-8 w-8 items-center justify-center rounded-full border border-rose-200 bg-white/70 text-rose-700 shadow-sm transition hover:bg-white disabled:cursor-not-allowed disabled:opacity-50"
-              aria-label={isPlaying ? 'Pause' : 'Play'}
-              disabled={!audioUrl}
+              onClick={toggleMute}
+              className="flex h-7 w-7 items-center justify-center rounded-full bg-white/70 text-[color:var(--accent-700)] transition hover:bg-white"
+              aria-label={isMuted ? 'Unmute' : 'Mute'}
             >
-              {isPlaying ? (
-                <svg viewBox="0 0 24 24" className="h-4 w-4" fill="currentColor">
-                  <rect x="6" y="5" width="4" height="14" rx="1" />
-                  <rect x="14" y="5" width="4" height="14" rx="1" />
+              {isMuted || volume === 0 ? (
+                <svg
+                  viewBox="0 0 24 24"
+                  className="h-4 w-4"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.6"
+                >
+                  <path d="M4 10v4h4l5 4V6l-5 4H4z" />
+                  <path d="M18 9l-6 6" />
+                  <path d="M12 9l6 6" />
                 </svg>
               ) : (
-                <svg viewBox="0 0 24 24" className="h-4 w-4" fill="currentColor">
-                  <path d="M8 5l11 7-11 7V5z" />
+                <svg
+                  viewBox="0 0 24 24"
+                  className="h-4 w-4"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.6"
+                >
+                  <path d="M4 10v4h4l5 4V6l-5 4H4z" />
+                  <path d="M16 9a4 4 0 010 6" />
                 </svg>
               )}
             </button>
-            <span>{formatTime(currentTime)}</span>
-            <div
-              ref={barRef}
-              onPointerDown={handlePointerDown}
-              onPointerMove={handlePointerMove}
-              onPointerUp={handlePointerUp}
-              onPointerLeave={handlePointerUp}
-              className="relative h-1.5 flex-1 cursor-pointer rounded-full bg-rose-200/60"
-              aria-label="Playback progress"
-            >
-              <div
-                className="absolute left-0 top-0 h-1.5 rounded-full bg-rose-500/70"
-                style={{ width: `${progress}%` }}
-              />
-            </div>
-            <span>{formatTime(duration)}</span>
-            <div className="flex h-7 w-7 items-center justify-center rounded-full bg-white/70 text-rose-700">
-              <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.6">
-                <path d="M4 10v4h4l5 4V6l-5 4H4z" />
-                <path d="M16 9a4 4 0 010 6" />
-              </svg>
-            </div>
+            <input
+              type="range"
+              min="0"
+              max="1"
+              step="0.01"
+              value={volume}
+              onChange={(event) => handleVolumeChange(Number(event.target.value))}
+              className="volume-slider w-20 cursor-pointer"
+              aria-label="Volume"
+            />
           </div>
 
           {audioError && (
-            <p className="mt-3 rounded-xl bg-rose-50 px-3 py-2 text-xs text-rose-600">{audioError}</p>
+            <p className="mt-3 rounded-xl bg-[color:var(--accent-100)] px-3 py-2 text-xs text-[color:var(--accent-600)]">{audioError}</p>
           )}
 
           <div
@@ -393,7 +617,7 @@ export const PlayerShell = () => {
                         }}
                         className={`transition-all ${
                           index === activeLine
-                            ? 'title-font text-base text-rose-900'
+                            ? 'title-font text-base text-[color:var(--accent-800)]'
                             : 'text-[color:var(--muted)] opacity-70'
                         }`}
                       >
@@ -409,10 +633,29 @@ export const PlayerShell = () => {
             )}
           </div>
 
+          <div className="mt-4 flex items-center gap-3 text-xs text-[color:var(--muted)]">
+            <span className="tabular-nums">{formatTime(currentTime)}</span>
+            <div
+              ref={barRef}
+              onPointerDown={handlePointerDown}
+              onPointerMove={handlePointerMove}
+              onPointerUp={handlePointerUp}
+              onPointerLeave={handlePointerUp}
+              className="relative h-1.5 flex-1 cursor-pointer rounded-full bg-[color:var(--accent-200-60)]"
+              aria-label="Playback progress"
+            >
+              <div
+                className="absolute left-0 top-0 h-1.5 rounded-full bg-[color:var(--accent-500-70)]"
+                style={{ width: `${progress}%` }}
+              />
+            </div>
+            <span className="tabular-nums">{formatTime(duration)}</span>
+          </div>
+
           <div className="mt-6 flex items-center justify-center gap-3">
             <button
               type="button"
-              className="flex h-10 w-10 items-center justify-center rounded-full border border-rose-200 bg-white/70 text-rose-700 transition hover:bg-white"
+              className="flex h-10 w-10 items-center justify-center rounded-full border border-[color:var(--accent-200)] bg-white/70 text-[color:var(--accent-700)] transition hover:bg-white"
               aria-label="Shuffle"
             >
               <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.6">
@@ -427,7 +670,7 @@ export const PlayerShell = () => {
             <button
               type="button"
               onClick={playPrev}
-              className="flex h-10 w-10 items-center justify-center rounded-full border border-rose-200 bg-white/70 text-rose-700 transition hover:bg-white"
+              className="flex h-10 w-10 items-center justify-center rounded-full border border-[color:var(--accent-200)] bg-white/70 text-[color:var(--accent-700)] transition hover:bg-white"
               aria-label="Previous track"
             >
               <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8">
@@ -456,7 +699,7 @@ export const PlayerShell = () => {
             <button
               type="button"
               onClick={playNext}
-              className="flex h-10 w-10 items-center justify-center rounded-full border border-rose-200 bg-white/70 text-rose-700 transition hover:bg-white"
+              className="flex h-10 w-10 items-center justify-center rounded-full border border-[color:var(--accent-200)] bg-white/70 text-[color:var(--accent-700)] transition hover:bg-white"
               aria-label="Next track"
             >
               <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8">
@@ -469,8 +712,8 @@ export const PlayerShell = () => {
               onClick={() => currentTrack && toggleLike(currentTrack.id)}
               className={`flex h-10 w-10 items-center justify-center rounded-full border transition ${
                 currentTrack && likedIds.has(currentTrack.id)
-                  ? 'border-rose-200 bg-rose-100 text-rose-600'
-                  : 'border-rose-200 bg-white/70 text-rose-700 hover:bg-white'
+                  ? 'border-[color:var(--accent-200)] bg-[color:var(--accent-100)] text-[color:var(--accent-600)]'
+                  : 'border-[color:var(--accent-200)] bg-white/70 text-[color:var(--accent-700)] hover:bg-white'
               }`}
               aria-label="Like"
             >
@@ -481,7 +724,7 @@ export const PlayerShell = () => {
           </div>
         </div>
 
-        <div className="panel float-in delay-3 flex flex-col gap-4 rounded-3xl p-5">
+        <div className="panel float-in delay-3 flex h-full max-h-[82vh] flex-col gap-4 rounded-3xl p-5 lg:min-h-[82vh]">
           <form
             onSubmit={(event) => {
               event.preventDefault();
@@ -501,21 +744,21 @@ export const PlayerShell = () => {
             />
             <button
               type="submit"
-              className="rounded-full border border-rose-200 bg-white/80 px-3 py-1 text-xs text-rose-700 shadow-sm hover:bg-white"
+              className="rounded-full border border-[color:var(--accent-200)] bg-white/80 px-3 py-1 text-xs text-[color:var(--accent-700)] shadow-sm hover:bg-white"
               disabled={loading}
             >
               {loading ? '...' : 'Search'}
             </button>
           </form>
 
-          {error && <p className="rounded-xl bg-rose-50 px-3 py-2 text-xs text-rose-600">{error}</p>}
+          {error && <p className="rounded-xl bg-[color:var(--accent-100)] px-3 py-2 text-xs text-[color:var(--accent-600)]">{error}</p>}
           {!error && !loading && results.length === 0 && (
             <p className="rounded-xl bg-white/70 px-3 py-2 text-xs text-[color:var(--muted)]">
               No results. Try another keyword.
             </p>
           )}
 
-          <div className="space-y-3">
+          <div className="lyrics-scroll flex-1 space-y-3 overflow-y-auto pr-1">
             {results.map((track, index) => {
               const isActive = track.id === currentTrack?.id;
               const isLiked = likedIds.has(track.id);
@@ -526,12 +769,12 @@ export const PlayerShell = () => {
                   onClick={() => setCurrentTrack(track)}
                   className={`flex w-full items-center justify-between gap-3 rounded-2xl border px-3 py-2 text-left transition ${
                     isActive
-                      ? 'border-rose-300 bg-white/80'
+                      ? 'border-[color:var(--accent-300)] bg-white/80'
                       : 'border-transparent bg-white/40 hover:bg-white/70'
                   }`}
                 >
                   <div className="flex min-w-0 items-center gap-3">
-                    <div className="flex h-11 w-11 flex-none items-center justify-center overflow-hidden rounded-xl bg-rose-200 text-xs font-semibold tabular-nums text-rose-900">
+                    <div className="flex h-11 w-11 flex-none items-center justify-center overflow-hidden rounded-xl bg-[color:var(--accent-200)] text-xs font-semibold tabular-nums text-[color:var(--accent-800)]">
                       {track.coverUrl ? (
                         <img src={track.coverUrl} alt="" className="h-full w-full object-cover" />
                       ) : (
@@ -551,8 +794,8 @@ export const PlayerShell = () => {
                     }}
                     className={`flex h-8 w-8 flex-none items-center justify-center rounded-full border transition ${
                       isLiked
-                        ? 'border-rose-200 bg-rose-100 text-rose-600'
-                        : 'border-rose-200 bg-white/70 text-rose-700 hover:bg-white'
+                        ? 'border-[color:var(--accent-200)] bg-[color:var(--accent-100)] text-[color:var(--accent-600)]'
+                        : 'border-[color:var(--accent-200)] bg-white/70 text-[color:var(--accent-700)] hover:bg-white'
                     }`}
                     aria-label="Like track"
                   >
