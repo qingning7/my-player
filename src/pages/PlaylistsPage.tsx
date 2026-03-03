@@ -17,11 +17,6 @@ type EditDraft = {
 };
 
 const TEXT = {
-  pageTitle: '歌单',
-  pageSubtitle: '在后端数据库中创建、编辑和管理歌单。',
-  refresh: '刷新',
-  loading: '加载中...',
-  loadError: '加载歌单失败',
   createTitle: '新建歌单',
   namePlaceholder: '歌单名称',
   descPlaceholder: '描述（可选）',
@@ -38,19 +33,16 @@ const TEXT = {
   updateFailed: '更新歌单失败',
   edit: '编辑',
   addToQueue: '加入播放列表',
-  noTracks: '该歌单还没有歌曲',
   deleting: '删除中...',
   delete: '删除',
   deleteConfirmPrefix: '确定删除“',
   deleteConfirmSuffix: '”吗？',
-  deleteFailed: '删除歌单失败',
 };
 
 export const PlaylistsPage = () => {
   const navigate = useNavigate();
   const [playlists, setPlaylists] = useState<Playlist[]>([]);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const [trackLookup, setTrackLookup] = useState<Record<string, NeteaseTrack>>({});
 
   const [name, setName] = useState('');
@@ -67,7 +59,6 @@ export const PlaylistsPage = () => {
   const loadPlaylists = () => {
     let alive = true;
     setLoading(true);
-    setError(null);
 
     fetchPlaylists()
       .then((data) => {
@@ -75,11 +66,7 @@ export const PlaylistsPage = () => {
           setPlaylists(data);
         }
       })
-      .catch((err) => {
-        if (alive) {
-          setError(err instanceof Error ? err.message : TEXT.loadError);
-        }
-      })
+      .catch(() => {})
       .finally(() => {
         if (alive) {
           setLoading(false);
@@ -215,13 +202,11 @@ export const PlaylistsPage = () => {
     if (!confirmed) return;
 
     setDeleteId(playlist.id);
-    setError(null);
 
     try {
       await deletePlaylist(playlist.id);
       setPlaylists((prev) => prev.filter((item) => item.id !== playlist.id));
-    } catch (err) {
-      setError(err instanceof Error ? err.message : TEXT.deleteFailed);
+    } catch {
     } finally {
       setDeleteId(null);
     }
@@ -230,10 +215,8 @@ export const PlaylistsPage = () => {
   const handlePlayPlaylist = (playlist: Playlist) => {
     const ids = playlist.trackIds ?? [];
     if (ids.length === 0) {
-      setError(TEXT.noTracks);
       return;
     }
-    setError(null);
     window.sessionStorage.setItem(
       'player-queue',
       JSON.stringify({ trackIds: ids, name: playlist.name }),
