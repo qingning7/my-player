@@ -2,10 +2,12 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   fetchLyric,
   fetchSongUrl,
+  fetchSongsByIds,
   searchSongs,
   type LyricLine,
   type NeteaseTrack,
 } from '../lib/netease';
+import { fetchPlaylists, updatePlaylist, type Playlist } from '../lib/api';
 
 type Theme = {
   id: string;
@@ -181,6 +183,11 @@ const fallbackLyrics = [
   'Lyrics will appear here automatically',
 ];
 
+type QueuePayload = {
+  trackIds?: Array<string | number>;
+  name?: string;
+};
+
 export const PlayerShell = () => {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const barRef = useRef<HTMLDivElement | null>(null);
@@ -207,6 +214,13 @@ export const PlayerShell = () => {
   const [lyricLoading, setLyricLoading] = useState(false);
 
   const [likedIds, setLikedIds] = useState<Set<number>>(() => new Set());
+  const [playlistPickerOpen, setPlaylistPickerOpen] = useState(false);
+  const [playlistTarget, setPlaylistTarget] = useState<NeteaseTrack | null>(null);
+  const [playlistOptions, setPlaylistOptions] = useState<Playlist[]>([]);
+  const [playlistLoading, setPlaylistLoading] = useState(false);
+  const [playlistError, setPlaylistError] = useState<string | null>(null);
+  const [playlistSavingId, setPlaylistSavingId] = useState<string | null>(null);
+  const [playlistSuccess, setPlaylistSuccess] = useState<string | null>(null);
   const [duration, setDuration] = useState(0);
   const [currentTime, setCurrentTime] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -223,7 +237,96 @@ export const PlayerShell = () => {
     window.localStorage.setItem('player-theme', theme.id);
   }, [themeId]);
 
+  const loadPlaylistQueue = async (payload: QueuePayload) => {
+    const ids = (payload.trackIds ?? []).map((id) => String(id).trim()).filter(Boolean);
+    if (ids.length === 0) {
+      return;
+    }
+    if (payload.name) {
+      setQuery(payload.name);
+    }
+    setLoading(true);
+    setError(null);
+
+    try {
+      const list = await fetchSongsByIds(ids);
+      setResults(list);
+      setCurrentTrack(list[0] ?? null);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : '\u52a0\u8f7d\u6b4c\u5355\u5931\u8d25');
+      setResults([]);
+      setCurrentTrack(null);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const loadPlaylists = async () => {
+    setPlaylistLoading(true);
+    setPlaylistError(null);
+    try {
+      const data = await fetchPlaylists();
+      setPlaylistOptions(data);
+    } catch (err) {
+      setPlaylistError(
+        err instanceof Error ? err.message : '\u52a0\u8f7d\u6b4c\u5355\u5931\u8d25',
+      );
+    } finally {
+      setPlaylistLoading(false);
+    }
+  };
+
+  const openPlaylistPicker = (track: NeteaseTrack) => {
+    setPlaylistTarget(track);
+    setPlaylistPickerOpen(true);
+    setPlaylistSuccess(null);
+    loadPlaylists();
+  };
+
+  const closePlaylistPicker = () => {
+    setPlaylistPickerOpen(false);
+    setPlaylistTarget(null);
+    setPlaylistError(null);
+    setPlaylistSuccess(null);
+  };
+
+  const handleAddToPlaylist = async (playlist: Playlist) => {
+    if (!playlistTarget) return;
+    const trackId = String(playlistTarget.id);
+    const current = playlist.trackIds ?? [];
+
+    if (current.includes(trackId)) {
+      setPlaylistSuccess(`\u5df2\u5728\u300c${playlist.name}\u300d\u4e2d`);
+      setLikedIds((prev) => new Set(prev).add(playlistTarget.id));
+      return;
+    }
+
+    setPlaylistSavingId(playlist.id);
+    setPlaylistError(null);
+    setPlaylistSuccess(null);
+
+    try {
+      const updated = await updatePlaylist(playlist.id, {
+        trackIds: [...current, trackId],
+      });
+      setPlaylistOptions((prev) =>
+        prev.map((item) => (item.id === updated.id ? updated : item)),
+      );
+      setPlaylistSuccess(`\u5df2\u52a0\u5165\u300c${playlist.name}\u300d`);
+      setLikedIds((prev) => new Set(prev).add(playlistTarget.id));
+    } catch (err) {
+      setPlaylistError(
+        err instanceof Error ? err.message : '\u52a0\u5165\u6b4c\u5355\u5931\u8d25',
+      );
+    } finally {
+      setPlaylistSavingId(null);
+    }
+  };
+
   const performSearch = async (keyword: string) => {
+    if (typeof window !== 'undefined') {
+      window.sessionStorage.removeItem('player-queue');
+    }
     const trimmed = keyword.trim();
     if (!trimmed) return;
     setLoading(true);
@@ -243,6 +346,20 @@ export const PlayerShell = () => {
   };
 
   useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const stored = window.sessionStorage.getItem('player-queue');
+      if (stored) {
+        try {
+          const payload = JSON.parse(stored) as QueuePayload;
+          if (payload?.trackIds?.length) {
+            loadPlaylistQueue(payload);
+            return;
+          }
+        } catch {
+          // ignore invalid payload
+        }
+      }
+    }
     performSearch(query);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -474,16 +591,9 @@ export const PlayerShell = () => {
     setCurrentTrack(results[nextIndex]);
   };
 
-  const toggleLike = (trackId: number) => {
-    setLikedIds((prev) => {
-      const next = new Set(prev);
-      if (next.has(trackId)) {
-        next.delete(trackId);
-      } else {
-        next.add(trackId);
-      }
-      return next;
-    });
+  const handleFavoriteClick = (track: NeteaseTrack | null) => {
+    if (!track) return;
+    openPlaylistPicker(track);
   };
 
   return (
@@ -709,7 +819,7 @@ export const PlayerShell = () => {
             </button>
             <button
               type="button"
-              onClick={() => currentTrack && toggleLike(currentTrack.id)}
+              onClick={() => handleFavoriteClick(currentTrack)}
               className={`flex h-10 w-10 items-center justify-center rounded-full border transition ${
                 currentTrack && likedIds.has(currentTrack.id)
                   ? 'border-[color:var(--accent-200)] bg-[color:var(--accent-100)] text-[color:var(--accent-600)]'
@@ -790,7 +900,7 @@ export const PlayerShell = () => {
                     type="button"
                     onClick={(event) => {
                       event.stopPropagation();
-                      toggleLike(track.id);
+                      handleFavoriteClick(track);
                     }}
                     className={`flex h-8 w-8 flex-none items-center justify-center rounded-full border transition ${
                       isLiked
@@ -809,6 +919,88 @@ export const PlayerShell = () => {
           </div>
         </div>
       </div>
+
+      {playlistPickerOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 p-4"
+          role="dialog"
+          aria-modal="true"
+          onClick={closePlaylistPicker}
+        >
+          <div
+            className="panel panel-strong w-full max-w-lg rounded-[var(--radius-lg)] px-5 py-4"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div className="flex items-center justify-between gap-3">
+              <div>
+                <p className="title-font text-lg text-[color:var(--accent-800)]">
+                  {'\u6536\u85cf\u5230\u6b4c\u5355'}
+                </p>
+                {playlistTarget && (
+                  <p className="text-xs text-[color:var(--muted)]">
+                    {playlistTarget.title} · {playlistTarget.artist}
+                  </p>
+                )}
+              </div>
+              <button
+                type="button"
+                onClick={closePlaylistPicker}
+                className="rounded-full border border-transparent px-3 py-1 text-xs text-[color:var(--muted)] hover:bg-white/70"
+              >
+                {'\u5173\u95ed'}
+              </button>
+            </div>
+
+            <div className="mt-4 flex flex-col gap-2 text-sm">
+              <div className="flex items-center justify-between text-xs text-[color:var(--muted)]">
+                <span>{'\u9009\u62e9\u4e00\u4e2a\u6b4c\u5355'}</span>
+                <button
+                  type="button"
+                  onClick={loadPlaylists}
+                  className="rounded-full border border-[color:var(--accent-200)] bg-white/70 px-2 py-1 text-[color:var(--accent-700)] transition hover:bg-white"
+                >
+                  {'\u5237\u65b0'}
+                </button>
+              </div>
+
+              {playlistLoading && (
+                <p className="text-xs text-[color:var(--muted)]">
+                  {'\u52a0\u8f7d\u4e2d...'}
+                </p>
+              )}
+              {!playlistLoading && playlistError && (
+                <p className="text-xs text-[color:var(--accent-700)]">{playlistError}</p>
+              )}
+              {!playlistLoading && !playlistError && playlistOptions.length === 0 && (
+                <p className="text-xs text-[color:var(--muted)]">
+                  {'\u6682\u65e0\u6b4c\u5355\uff0c\u8bf7\u5148\u521b\u5efa'}
+                </p>
+              )}
+
+              {playlistOptions.map((playlist) => (
+                <button
+                  key={playlist.id}
+                  type="button"
+                  onClick={() => handleAddToPlaylist(playlist)}
+                  disabled={playlistSavingId === playlist.id}
+                  className="flex items-center justify-between rounded-[var(--radius-md)] border border-white/70 bg-white/80 px-3 py-2 text-left text-[color:var(--ink)] transition hover:bg-white disabled:cursor-not-allowed"
+                >
+                  <span className="font-semibold">{playlist.name}</span>
+                  <span className="text-xs text-[color:var(--muted)]">
+                    {playlistSavingId === playlist.id
+                      ? '\u52a0\u5165\u4e2d...'
+                      : `\u5171 ${playlist.trackIds?.length ?? 0} \u9996`}
+                  </span>
+                </button>
+              ))}
+
+              {playlistSuccess && (
+                <p className="text-xs text-[color:var(--accent-700)]">{playlistSuccess}</p>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       <audio ref={audioRef} src={audioUrl ?? ''} preload="metadata" />
     </section>

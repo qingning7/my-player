@@ -41,17 +41,54 @@ export async function searchSongs(keyword: string, limit = 12): Promise<NeteaseT
   }
   const data = (await res.json()) as SearchResponse;
   const songs = data.result?.songs ?? [];
-  return songs.map((song) => {
-    const artists = song.artists ?? song.ar ?? [];
-    const album = song.album ?? song.al;
-    return {
-      id: song.id,
-      title: song.name,
-      artist: artists.map((item) => item.name).join(' / ') || 'Unknown',
-      album: album?.name,
-      coverUrl: album?.picUrl,
-    };
-  });
+  const list = songs.map(mapSongToTrack);
+  const missingCoverIds = list.filter((track) => !track.coverUrl).map((track) => track.id);
+  if (missingCoverIds.length === 0) {
+    return list;
+  }
+
+  try {
+    const detailList = await fetchSongsByIds(missingCoverIds);
+    if (detailList.length === 0) {
+      return list;
+    }
+    const detailMap = new Map(detailList.map((track) => [track.id, track]));
+    return list.map((track) => {
+      const detail = detailMap.get(track.id);
+      if (!detail) return track;
+      return {
+        ...track,
+        album: detail.album ?? track.album,
+        coverUrl: detail.coverUrl ?? track.coverUrl,
+      };
+    });
+  } catch {
+    return list;
+  }
+}
+
+type SongDetailResponse = {
+  songs?: SearchSong[];
+  code?: number;
+};
+
+export async function fetchSongsByIds(
+  ids: Array<number | string>,
+): Promise<NeteaseTrack[]> {
+  const normalized = ids.map((id) => String(id).trim()).filter(Boolean);
+  if (normalized.length === 0) {
+    return [];
+  }
+  const url = new URL('/netease/song/detail', API_BASE);
+  url.searchParams.set('ids', normalized.join(','));
+
+  const res = await fetch(url.toString());
+  if (!res.ok) {
+    throw new Error('Song detail failed');
+  }
+  const data = (await res.json()) as SongDetailResponse;
+  const songs = data.songs ?? [];
+  return songs.map(mapSongToTrack);
 }
 
 type SongUrlResponse = {
@@ -112,4 +149,16 @@ export function parseLyric(source: string): LyricLine[] {
   }
 
   return result.sort((a, b) => a.time - b.time);
+}
+
+function mapSongToTrack(song: SearchSong): NeteaseTrack {
+  const artists = song.artists ?? song.ar ?? [];
+  const album = song.album ?? song.al;
+  return {
+    id: song.id,
+    title: song.name,
+    artist: artists.map((item) => item.name).join(' / ') || 'Unknown',
+    album: album?.name,
+    coverUrl: album?.picUrl,
+  };
 }

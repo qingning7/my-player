@@ -4,6 +4,7 @@ export interface Playlist {
   id: string;
   name: string;
   description?: string | null;
+  trackIds?: string[];
   createdAt: string;
   updatedAt: string;
 }
@@ -11,6 +12,13 @@ export interface Playlist {
 export interface CreatePlaylistInput {
   name: string;
   description?: string;
+  trackIds?: string[];
+}
+
+export interface UpdatePlaylistInput {
+  name?: string;
+  description?: string | null;
+  trackIds?: string[];
 }
 
 export async function fetchPlaylists(): Promise<Playlist[]> {
@@ -29,7 +37,33 @@ export async function createPlaylist(input: CreatePlaylistInput): Promise<Playli
   });
 
   if (!res.ok) {
-    throw new Error('新增歌单失败');
+    throw new Error('创建歌单失败');
   }
   return res.json();
+}
+
+export async function updatePlaylist(
+  id: string,
+  input: UpdatePlaylistInput,
+): Promise<Playlist> {
+  const res = await fetch(`${API_BASE}/playlists/${id}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(input),
+  });
+
+  if (!res.ok) {
+    throw new Error('更新歌单失败');
+  }
+  return res.json();
+}
+
+export async function deletePlaylist(id: string): Promise<void> {
+  const res = await fetch(`${API_BASE}/playlists/${id}`, {
+    method: 'DELETE',
+  });
+
+  if (!res.ok) {
+    throw new Error('删除歌单失败');
+  }
 }
