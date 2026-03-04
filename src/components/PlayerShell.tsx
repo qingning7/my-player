@@ -197,6 +197,7 @@ export const PlayerShell = () => {
   const lyricContainerRef = useRef<HTMLDivElement | null>(null);
   const lineRefs = useRef<(HTMLParagraphElement | null)[]>([]);
   const wasPlayingRef = useRef(false);
+  const autoPlayNextRef = useRef(false);
   const lastVolumeRef = useRef(0.8);
 
   const [themeId, setThemeId] = useState(() => {
@@ -233,6 +234,7 @@ export const PlayerShell = () => {
   const [isDragging, setIsDragging] = useState(false);
   const [volume, setVolume] = useState(0.8);
   const [isMuted, setIsMuted] = useState(false);
+  const [isLooping, setIsLooping] = useState(false);
 
   useEffect(() => {
     const theme = themeMap[themeId] ?? themes[0];
@@ -424,7 +426,21 @@ export const PlayerShell = () => {
     };
     const handlePlay = () => setIsPlaying(true);
     const handlePause = () => setIsPlaying(false);
-    const handleEnded = () => setIsPlaying(false);
+    const handleEnded = () => {
+      if (isLooping) return;
+      if (!results.length || !currentTrack) {
+        setIsPlaying(false);
+        return;
+      }
+      const index = results.findIndex((track) => track.id === currentTrack.id);
+      if (index < 0) {
+        setIsPlaying(false);
+        return;
+      }
+      const nextIndex = (index + 1) % results.length;
+      autoPlayNextRef.current = true;
+      setCurrentTrack(results[nextIndex]);
+    };
 
     audio.addEventListener('loadedmetadata', handleLoaded);
     audio.addEventListener('timeupdate', handleTime);
@@ -439,7 +455,7 @@ export const PlayerShell = () => {
       audio.removeEventListener('pause', handlePause);
       audio.removeEventListener('ended', handleEnded);
     };
-  }, [isDragging]);
+  }, [isDragging, isLooping, results, currentTrack]);
 
   useEffect(() => {
     wasPlayingRef.current = isPlaying;
@@ -451,6 +467,12 @@ export const PlayerShell = () => {
     audio.volume = volume;
     audio.muted = isMuted;
   }, [volume, isMuted]);
+
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    audio.loop = isLooping;
+  }, [isLooping]);
 
   useEffect(() => {
     if (!currentTrack) {
@@ -499,7 +521,8 @@ export const PlayerShell = () => {
   useEffect(() => {
     const audio = audioRef.current;
     if (!audio) return;
-    const shouldResume = wasPlayingRef.current;
+    const shouldResume = wasPlayingRef.current || autoPlayNextRef.current;
+    autoPlayNextRef.current = false;
     audio.load();
     audio.currentTime = 0;
     setCurrentTime(0);
@@ -811,16 +834,18 @@ export const PlayerShell = () => {
           <div className="mt-6 flex items-center justify-center gap-3">
             <button
               type="button"
-              className="flex h-10 w-10 items-center justify-center rounded-full border border-[color:var(--accent-200)] bg-white/70 text-[color:var(--accent-700)] transition hover:bg-white"
-              aria-label="Shuffle"
+              onClick={() => setIsLooping((prev) => !prev)}
+              className={`flex h-10 w-10 items-center justify-center rounded-full border transition ${
+                isLooping
+                  ? 'border-[color:var(--accent-300)] bg-white text-[color:var(--accent-700)]'
+                  : 'border-[color:var(--accent-200)] bg-white/70 text-[color:var(--accent-700)] hover:bg-white'
+              }`}
+              aria-label={isLooping ? 'Disable repeat' : 'Enable repeat'}
             >
-              <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.6">
-                <path d="M4 4h4l4 6" />
-                <path d="M4 20h4l4-6" />
-                <path d="M16 4h4v4" />
-                <path d="M20 4l-4 4" />
-                <path d="M16 20h4v-4" />
-                <path d="M20 20l-4-4" />
+              <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8">
+                <path d="M4 7h11a4 4 0 010 8H7" />
+                <path d="M7 15l-3-3 3-3" />
+                <path d="M20 7v4" />
               </svg>
             </button>
             <button
