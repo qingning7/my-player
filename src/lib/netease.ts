@@ -29,11 +29,18 @@ type SearchResponse = {
   };
 };
 
-export async function searchSongs(keyword: string, limit = 12): Promise<NeteaseTrack[]> {
+export async function searchSongs(
+  keyword: string,
+  limit = 12,
+  offset = 0,
+): Promise<NeteaseTrack[]> {
   const url = new URL('/netease/search', API_BASE);
   url.searchParams.set('keywords', keyword);
   url.searchParams.set('type', '1');
   url.searchParams.set('limit', String(limit));
+  if (offset > 0) {
+    url.searchParams.set('offset', String(offset));
+  }
 
   const res = await fetch(url.toString());
   if (!res.ok) {

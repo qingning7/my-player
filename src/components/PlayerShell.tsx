@@ -183,6 +183,9 @@ const fallbackLyrics = [
   'Lyrics will appear here automatically',
 ];
 
+const SEARCH_PAGE_SIZE = 20;
+const SEARCH_MAX = 50;
+
 type QueuePayload = {
   trackIds?: Array<string | number>;
   name?: string;
@@ -205,6 +208,9 @@ export const PlayerShell = () => {
   const [query, setQuery] = useState('周杰伦');
   const [results, setResults] = useState<NeteaseTrack[]>([]);
   const [loading, setLoading] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [hasMore, setHasMore] = useState(false);
+  const [searchKeyword, setSearchKeyword] = useState('');
   const [error, setError] = useState<string | null>(null);
 
   const [currentTrack, setCurrentTrack] = useState<NeteaseTrack | null>(null);
@@ -245,6 +251,9 @@ export const PlayerShell = () => {
     if (payload.name) {
       setQuery(payload.name);
     }
+    setSearchKeyword('');
+    setHasMore(false);
+    setLoadingMore(false);
     setLoading(true);
     setError(null);
 
@@ -331,17 +340,54 @@ export const PlayerShell = () => {
     if (!trimmed) return;
     setLoading(true);
     setError(null);
+    setLoadingMore(false);
+    setHasMore(false);
+    setSearchKeyword(trimmed);
 
     try {
-      const list = await searchSongs(trimmed);
+      const list = await searchSongs(trimmed, SEARCH_PAGE_SIZE, 0);
       setResults(list);
       setCurrentTrack(list[0] ?? null);
+      const loaded = list.length;
+      setHasMore(loaded >= SEARCH_PAGE_SIZE && loaded < SEARCH_MAX);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Search failed');
       setResults([]);
       setCurrentTrack(null);
+      setHasMore(false);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadMoreResults = async () => {
+    if (!searchKeyword || loading || loadingMore || !hasMore) return;
+    const offset = results.length;
+    const remaining = SEARCH_MAX - offset;
+    if (remaining <= 0) {
+      setHasMore(false);
+      return;
+    }
+    setLoadingMore(true);
+    try {
+      const limit = Math.min(SEARCH_PAGE_SIZE, remaining);
+      const list = await searchSongs(searchKeyword, limit, offset);
+      if (list.length > 0) {
+        setResults((prev) => [...prev, ...list]);
+      }
+      const nextCount = offset + list.length;
+      setHasMore(list.length === limit && nextCount < SEARCH_MAX);
+    } catch {
+      setHasMore(false);
+    } finally {
+      setLoadingMore(false);
+    }
+  };
+
+  const handleResultsScroll = (event: React.UIEvent<HTMLDivElement>) => {
+    const target = event.currentTarget;
+    if (target.scrollHeight - target.scrollTop - target.clientHeight < 80) {
+      loadMoreResults();
     }
   };
 
@@ -868,7 +914,10 @@ export const PlayerShell = () => {
             </p>
           )}
 
-          <div className="lyrics-scroll flex-1 space-y-3 overflow-y-auto pr-1">
+          <div
+            className="lyrics-scroll flex-1 space-y-3 overflow-y-auto pr-1"
+            onScroll={handleResultsScroll}
+          >
             {results.map((track, index) => {
               const isActive = track.id === currentTrack?.id;
               const isLiked = likedIds.has(track.id);
@@ -916,6 +965,16 @@ export const PlayerShell = () => {
                 </button>
               );
             })}
+            {loadingMore && (
+              <p className="rounded-[var(--radius-sm)] bg-white/70 px-3 py-2 text-xs text-[color:var(--muted)]">
+                {'\u6b63\u5728\u52a0\u8f7d...'}
+              </p>
+            )}
+            {!loading && !loadingMore && results.length > 0 && !hasMore && (
+              <p className="rounded-[var(--radius-sm)] bg-white/70 px-3 py-2 text-xs text-[color:var(--muted)]">
+                {'\u5230\u5e95\u4e86'}
+              </p>
+            )}
           </div>
         </div>
       </div>
